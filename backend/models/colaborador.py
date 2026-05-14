@@ -5,6 +5,7 @@ from pydantic import BaseModel
 class ColaboradorCreate(BaseModel):
     nome: str
     idade: Optional[int] = None
+    ramo: Optional[str] = None
     seniority: Optional[str] = None
     anos_experiencia: Optional[int] = None
     bio: Optional[str] = None
@@ -13,6 +14,7 @@ class ColaboradorCreate(BaseModel):
 class ColaboradorUpdate(BaseModel):
     nome: Optional[str] = None
     idade: Optional[int] = None
+    ramo: Optional[str] = None
     seniority: Optional[str] = None
     anos_experiencia: Optional[int] = None
     bio: Optional[str] = None

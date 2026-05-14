@@ -15,7 +15,7 @@ router = APIRouter(prefix="/colaboradores", tags=["colaboradores"])
 
 # Select used for list (lighter — only skills for card badges)
 _LIST_SELECT = (
-    "id, nome, seniority, anos_experiencia, bio, "
+    "id, nome, ramo, seniority, anos_experiencia, bio, "
     "colaborador_skills(skill_id, nivel, skills_catalog(nome, categoria))"
 )
 

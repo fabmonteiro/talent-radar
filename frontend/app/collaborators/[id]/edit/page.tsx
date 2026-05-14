@@ -69,7 +69,8 @@ export default function EditColaboradorPage() {
       await apiPatch(`/colaboradores/${id}`, {
         nome: state.nome,
         ...(state.idade ? { idade: parseInt(state.idade) } : { idade: null }),
-        ...(state.seniority ? { seniority: state.seniority } : { seniority: null }),
+        ramo: state.ramo || null,
+        seniority: state.seniority || null,
         ...(state.anos_experiencia
           ? { anos_experiencia: parseInt(state.anos_experiencia) }
           : { anos_experiencia: null }),

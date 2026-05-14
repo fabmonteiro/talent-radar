@@ -32,6 +32,7 @@ export default function NewColaboradorPage() {
       const colab = await post("/colaboradores", {
         nome: state.nome,
         ...(state.idade ? { idade: parseInt(state.idade) } : {}),
+        ...(state.ramo ? { ramo: state.ramo } : {}),
         ...(state.seniority ? { seniority: state.seniority } : {}),
         ...(state.anos_experiencia ? { anos_experiencia: parseInt(state.anos_experiencia) } : {}),
         ...(state.bio ? { bio: state.bio } : {}),

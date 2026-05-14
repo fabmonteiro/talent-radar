@@ -19,18 +19,16 @@ type SkillBadge = {
 type ColaboradorCard = {
   id: string;
   nome: string;
+  ramo?: string;
   seniority?: string;
   anos_experiencia?: number;
   bio?: string;
   colaborador_skills: SkillBadge[];
 };
 
-const SENIORITY_COLOR: Record<string, string> = {
-  Junior: "bg-sky-100 text-sky-700",
-  Mid: "bg-indigo-100 text-indigo-700",
-  Senior: "bg-amber-100 text-amber-700",
-  Lead: "bg-orange-100 text-orange-700",
-  Principal: "bg-red-100 text-red-700",
+const RAMO_STYLE: Record<string, string> = {
+  Business: "bg-violet-100 text-violet-700",
+  Tech: "bg-teal-100 text-teal-700",
 };
 
 export default function CollaboratorsPage() {
@@ -156,14 +154,19 @@ export default function CollaboratorsPage() {
                     </div>
                   </div>
 
-                  {/* Seniority + experience */}
-                  <div className="flex items-center gap-2 mt-1">
-                    {colab.seniority && (
+                  {/* Ramo + Seniority + experience */}
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                    {colab.ramo && (
                       <span
                         className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                          SENIORITY_COLOR[colab.seniority] ?? "bg-slate-100 text-slate-600"
+                          RAMO_STYLE[colab.ramo] ?? "bg-slate-100 text-slate-600"
                         }`}
                       >
+                        {colab.ramo}
+                      </span>
+                    )}
+                    {colab.seniority && (
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
                         {colab.seniority}
                       </span>
                     )}

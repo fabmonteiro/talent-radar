@@ -19,7 +19,23 @@ import { cn } from "@/lib/utils";
 
 const API = "http://localhost:8000/api";
 
-const SENIORITY_OPTIONS = ["Junior", "Mid", "Senior", "Lead", "Principal"];
+const RAMO_OPTIONS = ["Business", "Tech"] as const;
+
+const ROLES_BY_RAMO: Record<string, string[]> = {
+  Business: [
+    "BA", "BAC", "BC", "BPC", "BEM",
+    "Manager", "Senior Manager", "Experienced Manager",
+    "Director", "Principal Director", "Partner", "Executive Director",
+  ],
+  Tech: [
+    "Assistant Engineer", "Engineer", "Senior Engineer",
+    "Lead Engineer", "Senior Lead Engineer",
+    "Project Manager", "Expert Engineer", "Technical Manager",
+    "Evangelist", "Manager", "Director", "Principal Director",
+    "Partner", "Executive Director",
+  ],
+};
+
 const SKILL_NIVEL = ["Básico", "Intermediário", "Avançado", "Expert"];
 const IDIOMA_NIVEL = ["Básico", "Intermediário", "Avançado", "Fluente", "Nativo"];
 
@@ -45,6 +61,7 @@ export type FormProj = { _id?: string; nome: string; descricao: string; tecnolog
 export type ColaboradorFormState = {
   nome: string;
   idade: string;
+  ramo: string;
   seniority: string;
   anos_experiencia: string;
   bio: string;
@@ -60,6 +77,7 @@ export type ColaboradorFull = {
   id: string;
   nome: string;
   idade?: number | null;
+  ramo?: string | null;
   seniority?: string | null;
   anos_experiencia?: number | null;
   bio?: string | null;
@@ -98,6 +116,7 @@ export function toFormState(data: ColaboradorFull): ColaboradorFormState {
   return {
     nome: data.nome,
     idade: data.idade?.toString() ?? "",
+    ramo: data.ramo ?? "",
     seniority: data.seniority ?? "",
     anos_experiencia: data.anos_experiencia?.toString() ?? "",
     bio: data.bio ?? "",
@@ -138,6 +157,7 @@ export function toFormState(data: ColaboradorFull): ColaboradorFormState {
 export const emptyFormState = (): ColaboradorFormState => ({
   nome: "",
   idade: "",
+  ramo: "",
   seniority: "",
   anos_experiencia: "",
   bio: "",
@@ -349,13 +369,36 @@ export default function ColaboradorForm({
           </div>
 
           <div>
-            <FieldLabel>Seniority</FieldLabel>
-            <Select value={state.seniority} onValueChange={(v) => set("seniority", v)}>
+            <FieldLabel>Ramo</FieldLabel>
+            <Select
+              value={state.ramo}
+              onValueChange={(v) => setState((s) => ({ ...s, ramo: v, seniority: "" }))}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecionar..." />
               </SelectTrigger>
               <SelectContent>
-                {SENIORITY_OPTIONS.map((o) => (
+                {RAMO_OPTIONS.map((o) => (
+                  <SelectItem key={o} value={o}>{o}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <FieldLabel>Função / Seniority</FieldLabel>
+            <Select
+              value={state.seniority}
+              onValueChange={(v) => set("seniority", v)}
+              disabled={!state.ramo}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={state.ramo ? "Selecionar..." : "Selecione o Ramo primeiro"}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {(ROLES_BY_RAMO[state.ramo] ?? []).map((o) => (
                   <SelectItem key={o} value={o}>{o}</SelectItem>
                 ))}
               </SelectContent>
