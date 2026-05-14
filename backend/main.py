@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.database import supabase
 from core.vector_store import qdrant, ensure_collection
 from routers.catalog import router as catalog_router
+from routers.colaboradores import router as colaboradores_router
 
 
 @asynccontextmanager
@@ -31,6 +32,7 @@ app.add_middleware(
 
 
 app.include_router(catalog_router, prefix="/api")
+app.include_router(colaboradores_router, prefix="/api")
 
 
 @app.get("/health")
