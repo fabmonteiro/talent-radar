@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.database import supabase
 from core.vector_store import qdrant, ensure_collection
 from routers.catalog import router as catalog_router
+from routers.chat import router as chat_router
 from routers.colaboradores import router as colaboradores_router
 from routers.dashboard import router as dashboard_router
 
@@ -34,6 +35,7 @@ app.add_middleware(
 
 app.include_router(catalog_router, prefix="/api")
 app.include_router(colaboradores_router, prefix="/api")
+app.include_router(chat_router, prefix="/api")
 app.include_router(dashboard_router, prefix="/api")
 
 
