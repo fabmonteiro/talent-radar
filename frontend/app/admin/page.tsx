@@ -127,7 +127,7 @@ function CatalogSection({
           // ── Edit row ──────────────────────────────────────────────────
           <div
             key={item.id}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-300 bg-blue-50"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30"
           >
             <Input
               className="h-8 text-sm flex-1"
@@ -146,7 +146,7 @@ function CatalogSection({
             <Button
               size="icon"
               variant="ghost"
-              className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+              className="h-8 w-8 text-green-500 hover:text-green-400 hover:bg-green-500/10"
               disabled={busy}
               onClick={() => saveEdit(item.id)}
             >
@@ -159,7 +159,7 @@ function CatalogSection({
             <Button
               size="icon"
               variant="ghost"
-              className="h-8 w-8 text-slate-400 hover:text-slate-600"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
               onClick={cancelEdit}
             >
               <X className="w-3.5 h-3.5" />
@@ -169,18 +169,18 @@ function CatalogSection({
           // ── Display row ───────────────────────────────────────────────
           <div
             key={item.id}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-border bg-card hover:bg-accent transition-colors"
           >
             <div className="flex-1 min-w-0 flex items-baseline gap-2">
               <span
                 className={cn(
                   "text-sm font-medium truncate",
-                  !item.ativo && "text-slate-400 line-through"
+                  !item.ativo && "text-muted-foreground line-through"
                 )}
               >
                 {item.nome}
               </span>
-              <span className="text-xs text-slate-400 shrink-0">
+              <span className="text-xs text-muted-foreground shrink-0">
                 {String(item[secondaryField])}
               </span>
             </div>
@@ -190,8 +190,8 @@ function CatalogSection({
               className={cn(
                 "text-xs px-2 shrink-0",
                 item.ativo
-                  ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
-                  : "bg-slate-100 text-slate-500"
+                  ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-300 dark:hover:bg-emerald-900/40"
+                  : "bg-muted text-muted-foreground"
               )}
             >
               {item.ativo ? "Ativo" : "Inativo"}
@@ -200,7 +200,7 @@ function CatalogSection({
             <Button
               size="icon"
               variant="ghost"
-              className="h-7 w-7 text-slate-400 hover:text-slate-700 shrink-0"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
               title="Editar"
               onClick={() => startEdit(item)}
             >
@@ -213,8 +213,8 @@ function CatalogSection({
               className={cn(
                 "h-7 w-7 shrink-0",
                 item.ativo
-                  ? "text-slate-500 hover:text-slate-700"
-                  : "text-slate-300 hover:text-slate-500"
+                  ? "text-muted-foreground hover:text-foreground"
+                  : "text-muted hover:text-muted-foreground"
               )}
               title={item.ativo ? "Desativar" : "Ativar"}
               disabled={busy}
@@ -231,13 +231,13 @@ function CatalogSection({
       )}
 
       {items.length === 0 && (
-        <p className="text-sm text-slate-400 py-4 text-center">
+        <p className="text-sm text-muted-foreground py-4 text-center">
           Nenhum item. Adicione um abaixo.
         </p>
       )}
 
       {/* ── Add row ──────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 mt-3">
+      <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-dashed border-border bg-muted/30 mt-3">
         <Input
           className="h-8 text-sm flex-1"
           placeholder="Nome"
@@ -315,11 +315,11 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-3xl">
-      <h2 className="text-2xl font-bold text-slate-800 mb-1">Admin</h2>
-      <p className="text-sm text-slate-500 mb-6">Gestão dos catálogos de skills, idiomas e certificações.</p>
+      <h2 className="text-2xl font-bold text-foreground mb-1">Admin</h2>
+      <p className="text-sm text-muted-foreground mb-6">Gestão dos catálogos de skills, idiomas e certificações.</p>
 
       {/* Tab bar */}
-      <div className="flex gap-0 mb-6 border-b border-slate-200">
+      <div className="flex gap-0 mb-6 border-b border-border">
         {TABS.map(({ key, label }) => (
           <button
             key={key}
@@ -327,8 +327,8 @@ export default function AdminPage() {
             className={cn(
               "px-5 py-2.5 text-sm font-medium -mb-px border-b-2 transition-colors",
               tab === key
-                ? "border-slate-800 text-slate-800"
-                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+                ? "border-foreground text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
             )}
           >
             {label}
@@ -338,14 +338,14 @@ export default function AdminPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-4 px-4 py-3 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700">
+        <div className="mb-4 px-4 py-3 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400">
           {error}
         </div>
       )}
 
       {/* Loading */}
       {loading ? (
-        <div className="flex items-center gap-2 text-sm text-slate-500 py-8">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground py-8">
           <Loader2 className="w-4 h-4 animate-spin" />
           A carregar...
         </div>
@@ -356,7 +356,7 @@ export default function AdminPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-semibold">
                   Skills
-                  <span className="ml-2 text-xs font-normal text-slate-400">
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">
                     {skills.filter((s) => s.ativo).length} ativas · {skills.length} total
                   </span>
                 </CardTitle>
@@ -378,7 +378,7 @@ export default function AdminPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-semibold">
                   Idiomas
-                  <span className="ml-2 text-xs font-normal text-slate-400">
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">
                     {idiomas.filter((i) => i.ativo).length} ativos · {idiomas.length} total
                   </span>
                 </CardTitle>
@@ -400,7 +400,7 @@ export default function AdminPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-semibold">
                   Certificações
-                  <span className="ml-2 text-xs font-normal text-slate-400">
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">
                     {certs.filter((c) => c.ativo).length} ativas · {certs.length} total
                   </span>
                 </CardTitle>

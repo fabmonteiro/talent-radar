@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, HTTPException
 
 from core.database import supabase
@@ -10,6 +12,9 @@ from models.colaborador import (
     ColaboradorIdiomaCreate,
     ColaboradorCertCreate,
 )
+from tools.ingest import ingest_colaborador, delete_colaborador_from_qdrant
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/colaboradores", tags=["colaboradores"])
 
@@ -46,7 +51,12 @@ def create_colaborador(body: ColaboradorCreate):
     result = supabase.table("colaboradores").insert(body.model_dump(exclude_none=True)).execute()
     if not result.data:
         raise HTTPException(status_code=500, detail="Failed to create colaborador")
-    return result.data[0]
+    record = result.data[0]
+    try:
+        ingest_colaborador(record["id"])
+    except Exception:
+        logger.exception("Qdrant ingest failed for colaborador %s", record["id"])
+    return record
 
 
 @router.get("/{id}")
@@ -65,12 +75,20 @@ def update_colaborador(id: str, body: ColaboradorUpdate):
     result = supabase.table("colaboradores").update(updates).eq("id", id).execute()
     if not result.data:
         raise _404()
+    try:
+        ingest_colaborador(id)
+    except Exception:
+        logger.exception("Qdrant ingest failed for colaborador %s", id)
     return result.data[0]
 
 
 @router.delete("/{id}", status_code=204)
 def delete_colaborador(id: str):
     supabase.table("colaboradores").delete().eq("id", id).execute()
+    try:
+        delete_colaborador_from_qdrant(id)
+    except Exception:
+        logger.exception("Qdrant delete failed for colaborador %s", id)
 
 
 # ── Skills ─────────────────────────────────────────────────────────────────

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Pencil, Trash2, Loader2, UserRound } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const API = "http://localhost:8000/api";
 
@@ -26,9 +27,15 @@ type ColaboradorCard = {
   colaborador_skills: SkillBadge[];
 };
 
-const RAMO_STYLE: Record<string, string> = {
-  Business: "bg-violet-100 text-violet-700",
-  Tech: "bg-teal-100 text-teal-700",
+// Ramo accent colours — left border + badge
+const RAMO_BORDER: Record<string, string> = {
+  Tech:     "border-l-teal-500",
+  Business: "border-l-violet-500",
+};
+
+const RAMO_BADGE: Record<string, string> = {
+  Tech:     "bg-teal-500/15 text-teal-400 dark:bg-teal-500/15 dark:text-teal-400",
+  Business: "bg-violet-500/15 text-violet-400 dark:bg-violet-500/15 dark:text-violet-400",
 };
 
 export default function CollaboratorsPage() {
@@ -70,8 +77,8 @@ export default function CollaboratorsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Colaboradores</h2>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <h2 className="text-2xl font-bold text-foreground">Colaboradores</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
             {!loading && `${colaboradores.length} colaborador${colaboradores.length !== 1 ? "es" : ""}`}
           </p>
         </div>
@@ -85,14 +92,14 @@ export default function CollaboratorsPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-4 px-4 py-3 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700">
+        <div className="mb-4 px-4 py-3 rounded-lg border border-red-500/30 bg-red-500/10 text-sm text-red-400">
           {error}
         </div>
       )}
 
       {/* Loading */}
       {loading && (
-        <div className="flex items-center gap-2 text-sm text-slate-500 py-12 justify-center">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground py-12 justify-center">
           <Loader2 className="w-4 h-4 animate-spin" />
           A carregar colaboradores...
         </div>
@@ -101,8 +108,8 @@ export default function CollaboratorsPage() {
       {/* Empty state */}
       {!loading && !error && colaboradores.length === 0 && (
         <div className="flex flex-col items-center gap-3 py-20 text-center">
-          <UserRound className="w-10 h-10 text-slate-300" />
-          <p className="text-slate-500 text-sm">Ainda não há colaboradores.</p>
+          <UserRound className="w-10 h-10 text-muted-foreground/40" />
+          <p className="text-muted-foreground text-sm">Ainda não há colaboradores.</p>
           <Button asChild variant="outline" size="sm">
             <Link href="/collaborators/new">
               <Plus className="w-3.5 h-3.5 mr-1.5" />
@@ -119,19 +126,26 @@ export default function CollaboratorsPage() {
             const skills = colab.colaborador_skills ?? [];
             const visibleSkills = skills.slice(0, 4);
             const extraCount = skills.length - visibleSkills.length;
+            const ramoBorder = RAMO_BORDER[colab.ramo ?? ""] ?? "border-l-border";
 
             return (
-              <Card key={colab.id} className="hover:shadow-md transition-shadow">
+              <Card
+                key={colab.id}
+                className={cn(
+                  "hover:shadow-xl hover:shadow-black/20 transition-all duration-200 border-l-2",
+                  ramoBorder
+                )}
+              >
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base font-semibold text-slate-800 leading-snug">
+                    <CardTitle className="text-base font-semibold text-card-foreground leading-snug">
                       {colab.nome}
                     </CardTitle>
                     <div className="flex gap-1 shrink-0">
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="h-7 w-7 text-slate-400 hover:text-slate-700"
+                        className="h-7 w-7 text-muted-foreground hover:text-foreground"
                         title="Editar"
                         onClick={() => router.push(`/collaborators/${colab.id}/edit`)}
                       >
@@ -140,7 +154,7 @@ export default function CollaboratorsPage() {
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="h-7 w-7 text-slate-400 hover:text-red-600"
+                        className="h-7 w-7 text-muted-foreground hover:text-red-500"
                         title="Eliminar"
                         disabled={deleting === colab.id}
                         onClick={() => handleDelete(colab.id, colab.nome)}
@@ -157,21 +171,20 @@ export default function CollaboratorsPage() {
                   {/* Ramo + Seniority + experience */}
                   <div className="flex flex-wrap items-center gap-1.5 mt-1">
                     {colab.ramo && (
-                      <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                          RAMO_STYLE[colab.ramo] ?? "bg-slate-100 text-slate-600"
-                        }`}
-                      >
+                      <span className={cn(
+                        "text-xs font-medium px-2 py-0.5 rounded-full",
+                        RAMO_BADGE[colab.ramo] ?? "bg-secondary text-secondary-foreground"
+                      )}>
                         {colab.ramo}
                       </span>
                     )}
                     {colab.seniority && (
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">
                         {colab.seniority}
                       </span>
                     )}
                     {colab.anos_experiencia != null && (
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-muted-foreground">
                         {colab.anos_experiencia} anos exp.
                       </span>
                     )}
@@ -179,19 +192,17 @@ export default function CollaboratorsPage() {
                 </CardHeader>
 
                 <CardContent className="space-y-3">
-                  {/* Bio */}
                   {colab.bio && (
-                    <p className="text-xs text-slate-500 line-clamp-2">{colab.bio}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{colab.bio}</p>
                   )}
 
-                  {/* Skills */}
                   {skills.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {visibleSkills.map((s) => (
                         <Badge
                           key={s.skill_id}
                           variant="secondary"
-                          className="text-xs bg-slate-100 text-slate-600 hover:bg-slate-100"
+                          className="text-xs bg-secondary text-secondary-foreground hover:bg-secondary"
                         >
                           {s.skills_catalog.nome}
                         </Badge>
@@ -199,7 +210,7 @@ export default function CollaboratorsPage() {
                       {extraCount > 0 && (
                         <Badge
                           variant="outline"
-                          className="text-xs text-slate-400 border-slate-200"
+                          className="text-xs text-muted-foreground border-border"
                         >
                           +{extraCount}
                         </Badge>
