@@ -36,8 +36,8 @@ const ROLES_BY_RAMO: Record<string, string[]> = {
   ],
 };
 
-const SKILL_NIVEL = ["Básico", "Intermediário", "Avançado", "Expert"];
-const IDIOMA_NIVEL = ["Básico", "Intermediário", "Avançado", "Fluente", "Nativo"];
+const SKILL_NIVEL = ["Básico", "Intermédio", "Avançado", "Expert"];
+const IDIOMA_NIVEL = ["Básico", "Intermédio", "Avançado", "Fluente", "Nativo"];
 
 // ── Types ──────────────────────────────────────────────────────────────────
 

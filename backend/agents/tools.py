@@ -75,6 +75,126 @@ Question: {question}
 
 Always include the 'nome' column in SELECT statements when querying the colaboradores table. Never return results without the collaborator's name.
 
+IMPORTANT — the 'seniority' column contains EXACT NTT Data Portugal role names.
+Never use LIKE, contains, or partial matching on seniority. Always use exact match (=).
+Never interpret abbreviations or role names as categories.
+
+Business track exact role names:
+BA, BAC, BC, BPC, BEM, Manager, Senior Manager, Experienced Manager,
+Director, Principal Director, Partner, Executive Director
+
+Tech track exact role names:
+Assistant Engineer, Engineer, Senior Engineer, Lead Engineer,
+Senior Lead Engineer, Project Manager, Expert Engineer,
+Technical Manager, Evangelist, Manager, Director,
+Principal Director, Partner, Executive Director
+
+Examples of correct queries:
+- 'Temos algum BA?' → WHERE seniority = 'BA'  (NOT LIKE '%BA%', NOT ramo = 'Business')
+- 'Quem é Senior Engineer?' → WHERE seniority = 'Senior Engineer'  (NOT LIKE '%senior%')
+- 'Há algum BEM?' → WHERE seniority = 'BEM'
+- 'Quantos Engineers temos?' → WHERE seniority = 'Engineer'  (NOT 'Senior Engineer')
+- 'Senior Lead Engineer' → WHERE seniority = 'Senior Lead Engineer'  (NOT LIKE '%senior%')
+
+The 'ramo' column is either 'Business' or 'Tech' and refers to career track only.
+It is completely separate from seniority — never use ramo to filter by role name.
+
+When a question asks for multiple roles connected by 'ou' (or) or 'e' (and),
+use an IN clause with exact role names. Never expand abbreviations into descriptions.
+
+Examples:
+- 'Temos algum BA ou BPC?' → WHERE seniority IN ('BA', 'BPC')
+- 'Quem é Engineer ou Senior Engineer?' → WHERE seniority IN ('Engineer', 'Senior Engineer')
+- 'Há algum BA, BAC ou BC?' → WHERE seniority IN ('BA', 'BAC', 'BC')
+
+The skill proficiency level is stored in the 'nivel' column of the
+'colaborador_skills' junction table, NOT in skills_catalog.
+
+Nivel values for skills follow this ordered scale (ascending):
+'Básico' < 'Intermédio' < 'Avançado'
+
+Nivel values for idiomas follow this ordered scale (ascending):
+'Básico' < 'Intermédio' < 'Fluente' < 'Nativo'
+
+When querying skills with a level filter, always JOIN colaborador_skills
+and filter on colaborador_skills.nivel with exact match.
+
+When asked for a minimum level, use IN with all levels equal or above:
+- 'nível Intermédio no mínimo' → cs.nivel IN ('Intermédio', 'Avançado')
+- 'nível Básico no mínimo' → cs.nivel IN ('Básico', 'Intermédio', 'Avançado')
+- 'nível Fluente no mínimo' (idioma) → ci.nivel IN ('Fluente', 'Nativo')
+
+When asked to show the level of a skill, always SELECT colaborador_skills.nivel
+in the query.
+
+Examples:
+- 'Quem tem CrewAI avançado?' →
+  JOIN colaborador_skills cs ON c.id = cs.colaborador_id
+  JOIN skills_catalog sk ON cs.skill_id = sk.id
+  WHERE sk.nome = 'CrewAI' AND cs.nivel = 'Avançado'
+
+- 'Quem sabe CrewAI no mínimo Intermédio?' →
+  WHERE sk.nome = 'CrewAI' AND cs.nivel IN ('Intermédio', 'Avançado')
+
+- 'Lista quem sabe CrewAI e diz o nível' →
+  SELECT c.nome, cs.nivel FROM colaboradores c
+  JOIN colaborador_skills cs ON c.id = cs.colaborador_id
+  JOIN skills_catalog sk ON cs.skill_id = sk.id
+  WHERE sk.nome = 'CrewAI'
+
+IDIOMAS:
+
+The idioma name is in idiomas_catalog.nome. The level is in colaborador_idiomas.nivel.
+
+To query idiomas, always JOIN like this:
+
+  JOIN colaborador_idiomas ci ON c.id = ci.colaborador_id
+
+  JOIN idiomas_catalog ic ON ci.idioma_id = ic.id
+
+Nivel values for idiomas (ascending order):
+'Básico' < 'Intermédio' < 'Fluente' < 'Nativo'
+
+Examples:
+- 'Quem fala espanhol?' →
+  WHERE ic.nome = 'Espanhol'
+
+- 'Lista quem fala espanhol com o nível' →
+  SELECT c.nome, ci.nivel FROM colaboradores c
+  JOIN colaborador_idiomas ci ON c.id = ci.colaborador_id
+  JOIN idiomas_catalog ic ON ci.idioma_id = ic.id
+  WHERE ic.nome = 'Espanhol'
+
+- 'Quem fala espanhol no mínimo Intermédio?' →
+  WHERE ic.nome = 'Espanhol' AND ci.nivel IN ('Intermédio', 'Fluente', 'Nativo')
+
+- 'Quem fala espanhol fluente?' →
+  WHERE ic.nome = 'Espanhol' AND ci.nivel = 'Fluente'
+
+CERTIFICAÇÕES:
+
+The certification name is in certificacoes_catalog.nome.
+
+The year of certification is in colaborador_certificacoes.ano (stored as text, e.g. '2024').
+
+To query certifications, always JOIN like this:
+
+  JOIN colaborador_certificacoes cc ON c.id = cc.colaborador_id
+
+  JOIN certificacoes_catalog cert ON cc.cert_id = cert.id
+
+Examples:
+- 'Quem tem a certificação Cloud Digital Leader?' →
+  WHERE cert.nome = 'Cloud Digital Leader'
+
+- 'Quem fez a certificação Generative AI Leader depois de 2023?' →
+  WHERE cert.nome = 'Generative AI Leader' AND cc.ano > '2023'
+
+- 'Lista as certificações de cada colaborador com o ano' →
+  SELECT c.nome, cert.nome, cc.ano FROM colaboradores c
+  JOIN colaborador_certificacoes cc ON c.id = cc.colaborador_id
+  JOIN certificacoes_catalog cert ON cc.cert_id = cert.id
+
 Return a JSON object with exactly these fields:
   "endpoint": string — starts with /colaboradores, includes ?select=... and all filters
   "prefer_count": boolean — true only when the question asks for a count/total
@@ -118,47 +238,52 @@ Return only the JSON, no markdown.
         return f"Found {len(data)} collaborator(s):\n{_format_rows(data)}"
 
 
+_SKIP_KEYS = {"id", "colaborador_id", "skill_id", "idioma_id", "cert_id"}
+
+
 def _format_rows(rows: list[dict]) -> str:
     lines = []
     for row in rows:
-        parts = [row.get("nome", "Unknown")]
-        if row.get("ramo"):
-            parts.append(row["ramo"])
-        if row.get("seniority"):
-            parts.append(row["seniority"])
-        if row.get("anos_experiencia") is not None:
-            parts.append(f"{row['anos_experiencia']} anos exp.")
+        parts: list[str] = []
 
-        skills = [
-            s["skills_catalog"]["nome"]
-            for s in (row.get("colaborador_skills") or [])
-            if s.get("skills_catalog")
-        ]
-        if skills:
-            parts.append(f"Skills: {', '.join(skills)}")
+        for key, value in row.items():
+            if key in _SKIP_KEYS or value is None:
+                continue
 
-        idiomas = [
-            i["idiomas_catalog"]["nome"]
-            for i in (row.get("colaborador_idiomas") or [])
-            if i.get("idiomas_catalog")
-        ]
-        if idiomas:
-            parts.append(f"Idiomas: {', '.join(idiomas)}")
+            # Nested list (e.g. colaborador_skills, idiomas_catalog, …)
+            if isinstance(value, list):
+                items = [_format_nested(item) for item in value if item is not None]
+                if items:
+                    parts.append(f"{key}: {', '.join(items)}")
+            elif isinstance(value, dict):
+                nested = _format_nested(value)
+                if nested:
+                    parts.append(f"{key}: {nested}")
+            else:
+                parts.append(f"{key}: {value}")
 
-        certs = [
-            c["certificacoes_catalog"]["nome"]
-            for c in (row.get("colaborador_certificacoes") or [])
-            if c.get("certificacoes_catalog")
-        ]
-        if certs:
-            parts.append(f"Certs: {', '.join(certs)}")
-
-        lines.append("- " + " | ".join(parts))
-
-        if row.get("bio"):
-            lines.append(f"  Bio: {row['bio'][:150]}")
+        lines.append("- " + " | ".join(parts) if parts else "- (sem dados)")
 
     return "\n".join(lines)
+
+
+def _format_nested(obj: dict) -> str:
+    """Flatten a nested dict into 'key: value' pairs, skipping id fields."""
+    if not isinstance(obj, dict):
+        return str(obj)
+    parts = []
+    for k, v in obj.items():
+        if k in _SKIP_KEYS or v is None:
+            continue
+        if isinstance(v, dict):
+            parts.append(_format_nested(v))
+        elif isinstance(v, list):
+            items = [_format_nested(i) for i in v if i is not None]
+            if items:
+                parts.append(", ".join(items))
+        else:
+            parts.append(f"{k}: {v}")
+    return " / ".join(parts) if parts else ""
 
 
 # ── RAG tool ─────────────────────────────────────────────────────────────────
