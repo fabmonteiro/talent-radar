@@ -5,11 +5,12 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, Settings, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, Users, MessageSquare, Settings, Sun, Moon } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/collaborators", label: "Collaborators", icon: Users },
+  { href: "/chat", label: "Chat", icon: MessageSquare },
   { href: "/admin", label: "Admin", icon: Settings },
 ];
 

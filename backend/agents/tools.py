@@ -73,6 +73,8 @@ You are a PostgREST query generator for a Supabase database.
 
 Question: {question}
 
+Always include the 'nome' column in SELECT statements when querying the colaboradores table. Never return results without the collaborator's name.
+
 Return a JSON object with exactly these fields:
   "endpoint": string — starts with /colaboradores, includes ?select=... and all filters
   "prefer_count": boolean — true only when the question asks for a count/total
