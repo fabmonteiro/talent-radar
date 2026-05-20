@@ -75,7 +75,7 @@ Question: {question}
 
 Always include the 'nome' column in SELECT statements when querying the colaboradores table. Never return results without the collaborator's name.
 
-IMPORTANT — the 'seniority' column contains EXACT NTT Data Portugal role names.
+IMPORTANT — the 'seniority' column contains EXACT role names.
 Never use LIKE, contains, or partial matching on seniority. Always use exact match (=).
 Never interpret abbreviations or role names as categories.
 
@@ -204,7 +204,9 @@ Return only the JSON, no markdown.
         response = _gemini.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
-            config=genai_types.GenerateContentConfig(response_mime_type="application/json"),
+            config=genai_types.GenerateContentConfig(
+                response_mime_type="application/json"
+            ),
         )
         try:
             spec = json.loads(response.text)
@@ -229,7 +231,9 @@ Return only the JSON, no markdown.
 
         if prefer_count:
             content_range = resp.headers.get("content-range", "?")
-            total = content_range.split("/")[-1] if "/" in content_range else content_range
+            total = (
+                content_range.split("/")[-1] if "/" in content_range else content_range
+            )
             return f"Total: {total} collaborator(s) match.\n{_format_rows(data[:10])}"
 
         if not data:
@@ -308,7 +312,9 @@ class RAGSearchTool(BaseTool):
         # Step 1: generate embedding
         try:
             vector = generate_embedding(question)
-            print(f"[RAG] Embedding OK — dim={len(vector)}, first5={[round(v, 4) for v in vector[:5]]}")
+            print(
+                f"[RAG] Embedding OK — dim={len(vector)}, first5={[round(v, 4) for v in vector[:5]]}"
+            )
         except Exception:
             msg = f"[RAG] ERROR generating embedding:\n{traceback.format_exc()}"
             print(msg)
