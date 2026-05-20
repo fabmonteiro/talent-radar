@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
-const API = "http://localhost:8000/api";
+const API = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 const TECH_COLOR    = "#14B8A6";   // teal-500
 const BIZ_COLOR     = "#8B5CF6";   // violet-500

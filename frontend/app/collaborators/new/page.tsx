@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ColaboradorForm, { ColaboradorFormState } from "@/components/ColaboradorForm";
 
-const API = "http://localhost:8000/api";
+const API = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 async function post(path: string, body: unknown) {
   const res = await fetch(`${API}${path}`, {

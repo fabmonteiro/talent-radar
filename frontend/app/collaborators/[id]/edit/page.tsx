@@ -9,7 +9,7 @@ import ColaboradorForm, {
   toFormState,
 } from "@/components/ColaboradorForm";
 
-const API = "http://localhost:8000/api";
+const API = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 async function apiFetch(path: string) {
   const res = await fetch(`${API}${path}`);

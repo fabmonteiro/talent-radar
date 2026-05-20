@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const API = "http://localhost:8000/api";
+const API = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 const EXAMPLES = [
   "Quantos colaboradores temos no ramo Tech?",
